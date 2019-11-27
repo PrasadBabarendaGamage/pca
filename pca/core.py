@@ -18,6 +18,7 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 import scipy
+import json
 
 
 
@@ -130,28 +131,40 @@ def export_mesh(msh, out_pth, fle_nme, vsl=False):
     return
 
 
-def variance_barplot(pca, num_components, varianceTreshold):
+def plot_variance_explained(pca, num_components):
     variance = pca.explained_variance_ratio_ * 100
     cum_variance = np.cumsum(pca.explained_variance_ratio_) * 100
 
     # Make a stacked barplot
     N = num_components
     ind = np.arange(N)
-    pastVar = np.subtract(cum_variance, variance)
     barwidth = 0.5
-
     plt.figure()
-    plt.bar(ind, pastVar[0 : N], color='b', width=barwidth)
-    plt.bar(ind, variance[0 : N], bottom=pastVar[0 : N], color='r', width=barwidth)
-    plt.axhline(y=varianceTreshold, linewidth=2, color='k', linestyle='dashed')
+    plt.bar(ind, cum_variance[0 : N], width=barwidth, color='C0', label='cumulative variance')
+    plt.bar(ind, variance[0 : N], width=barwidth, color='C1', label='variance')
+    #plt.axhline(y=varianceTreshold, linewidth=2, color='k', linestyle='dashed')
     # Create names on the x-axis
     # plt.xticks(y_pos, bars, fontsize=20)
-    plt.xticks([])
-    plt.title('Cumulative sum of eigenvectors; Treshold = %d' % varianceTreshold, fontsize=24)
-    plt.xlabel('Eigenvectors', fontsize=20)
-    plt.ylabel('Percentage [%]', fontsize=20)
+    #plt.xticks([])
+    plt.ylim(0.0, 100)
+    #plt.title('Cumulative variance accounted for', fontsize=10)
+    plt.xlabel('PCA Modes', fontsize=10)
+    plt.ylabel('Variance explained [%]', fontsize=10)
 
+    handles, labels = plt.gca().get_legend_handles_labels()
+    order = [1, 0]
+    plt.legend([handles[idx] for idx in order], [labels[idx] for idx in order], bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
+           ncol=2, mode="expand", borderaxespad=0.)
+    plt.show()
 
+    data = {}
+    data['PCA modes'] = ind.tolist()
+    data['cumulative variance'] = cum_variance[0 : N].tolist()
+    data['variance'] = variance[0 : N].tolist()
+    with open('variance_explained_plot_data.json', 'w') as outfile:
+        json.dump(data, outfile)
+
+    a=1
 
     # ==============
 
