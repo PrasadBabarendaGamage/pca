@@ -97,11 +97,11 @@ def plot_variance_explained(pca, num_components):
 
     # Make a stacked barplot
     N = num_components
-    ind = np.arange(N)
+    ind = np.arange(1, N)
     barwidth = 0.5
     plt.figure()
-    plt.bar(ind, cum_variance[0 : N], width=barwidth, color='C0', label='cumulative variance')
-    plt.bar(ind, variance[0 : N], width=barwidth, color='C1', label='variance')
+    plt.bar(ind, cum_variance[0 : N-1], width=barwidth, color='C0', label='cumulative variance')
+    plt.bar(ind, variance[0 : N-1], width=barwidth, color='C1', label='variance')
     #plt.axhline(y=varianceTreshold, linewidth=2, color='k', linestyle='dashed')
     # Create names on the x-axis
     # plt.xticks(y_pos, bars, fontsize=20)
