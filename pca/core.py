@@ -1,5 +1,5 @@
 """
-Finds the principal components of a population of reference geometries
+Finds the principal components of a population of reference geometries.
 """
 
 import numpy as np
@@ -14,6 +14,7 @@ def find_principal_components(x):
     :param x: A two-dimensional data array of flattened three-dimensional node positions.
     :return: A class containing principal components, explained variance etc.
     """
+    
     pca = PCA(x.shape[0])
     nde_means = np.mean(x, axis=0)
     pca.fit(x - nde_means)
@@ -30,6 +31,7 @@ def calculate_weights(pca, input_nds):
     :param s_idx: An index for a stiffness solved on a prone-to-supine bpm pipeline.
     :return: A one-dimensional array of component weights in number of standard deviations.
     """
+
     # pth = os.path.join(p.workspace('mechanics').path(), 'reference_parameter_set_{0}.mesh'.format(s_idx))
     # ref_nds = morphic.Mesh(pth).get_nodes()
     ref_nds = input_nds
@@ -45,6 +47,7 @@ def reconstruct_nodes(pca, pc_idx, wts):
     :param pc_idx: An integer number of components to include.
     :return: A two-dimensional array of three-dimensional node positions.
     """
+
     wts = wts*-1
     nds = np.dot(wts[..., 0:pc_idx], pca.components_[0:pc_idx, :]) + pca.mean_
     nds = np.reshape(nds, [pca.n_features_ // 3, 3], order='F')
@@ -60,6 +63,7 @@ def replace_nodes(msh, nds):
     :param nds: A two-dimensional array of node positions.
     :return: A morphic mesh with nodes replaced.
     """
+
     ref_nd_ids = msh.get_node_ids()[1]
     for j, nd_id in enumerate(ref_nd_ids):
         msh.nodes[nd_id].set_values = nds[j, :]
@@ -67,6 +71,13 @@ def replace_nodes(msh, nds):
 
 
 def plot_variance_explained(pca, num_components):
+    """Produces a Scree plot to show how much variance each principal component contributes.
+
+    :param pca: A class containing principal components, explained variance etc.
+    :param num_components: Number of components to keep.
+    :return: Scree plot.
+    """
+
     variance = pca.explained_variance_ratio_ * 100
     cum_variance = np.cumsum(pca.explained_variance_ratio_) * 100
 
@@ -98,8 +109,14 @@ def plot_variance_explained(pca, num_components):
         json.dump(data, outfile)
 
 
-# Function to determine the number of components to keep, based on the amount of variance explained by each component
 def num_components(pca, var_percentage):
+   """Generates the number of components to keep, based on the amount of variance explained by each component.
+
+   :param pca: A class containing principal components, explained variance etc.
+   :param var_percentage: Amount of variance contributed by each principal component.
+   :return: Number of components to keep.
+   """
+
     variance = pca.explained_variance_ratio_ * 100
     cum_variance = np.cumsum(variance)
 
