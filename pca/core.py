@@ -14,12 +14,22 @@ def find_principal_components(x):
     :param x: A two-dimensional data array of flattened three-dimensional node positions.
     :return: A class containing principal components, explained variance etc.
     """
-    
+
+    # Number of principal components to be kept.
     pca = PCA(x.shape[0])
+
+    # Finding average node positions from training set.
     nde_means = np.mean(x, axis=0)
+
+    # Fit the PCA model with training data set.
     pca.fit(x - nde_means)
+
+    # Setting average node position as average position in model.
     pca.mean_ = nde_means
+
+    # Vectors for our principal components.
     pca.components_ = (pca.components_.T * np.sqrt(pca.explained_variance_)).T
+
     return pca
 
 
@@ -34,7 +44,11 @@ def calculate_weights(pca, input_nds):
 
     # pth = os.path.join(p.workspace('mechanics').path(), 'reference_parameter_set_{0}.mesh'.format(s_idx))
     # ref_nds = morphic.Mesh(pth).get_nodes()
+
+    # Using input nodes as reference nodes.
     ref_nds = input_nds
+
+    # Calculating weights in number of standard deviations from given PCA input.
     wts = np.dot(np.reshape(ref_nds, [1, -1], order='F') - pca.mean_, pca.components_.T) / pca.explained_variance_
     return wts
 
@@ -51,7 +65,6 @@ def reconstruct_nodes(pca, pc_idx, wts):
     wts = wts*-1
     nds = np.dot(wts[..., 0:pc_idx], pca.components_[0:pc_idx, :]) + pca.mean_
     nds = np.reshape(nds, [pca.n_features_ // 3, 3], order='F')
-
 
     return nds
 
@@ -74,7 +87,7 @@ def plot_variance_explained(pca, num_components):
     """Produces a Scree plot to show how much variance each principal component contributes.
 
     :param pca: A class containing principal components, explained variance etc.
-    :param num_components: Number of components to keep.
+    :param num_components: Number of  principal components to keep.
     :return: Scree plot.
     """
 
@@ -117,6 +130,7 @@ def num_components(pca, var_percentage):
    :return: Number of components to keep.
    """
 
+    # Calculating variance contribution by principal components.
     variance = pca.explained_variance_ratio_ * 100
     cum_variance = np.cumsum(variance)
 
