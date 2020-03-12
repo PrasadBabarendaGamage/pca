@@ -21,7 +21,7 @@ def find_principal_components(x):
     # Finding average node positions from training set.
     nde_means = np.mean(x, axis=0)
 
-    # Fit the PCA model with training data set.
+    # Calculating loading scores and variation accounted for by each principal component.
     pca.fit(x - nde_means)
 
     # Setting average node position as average position in model.
@@ -91,6 +91,7 @@ def plot_variance_explained(pca, num_components):
     :return: Scree plot.
     """
 
+    # Calculating variance percentage and cumulative variance of principal components.
     variance = pca.explained_variance_ratio_ * 100
     cum_variance = np.cumsum(pca.explained_variance_ratio_) * 100
 
