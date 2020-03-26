@@ -34,22 +34,13 @@ def find_principal_components(x):
 
 
 def calculate_weights(pca, input_nds):
-    """Calculate weights for a prone-to-supine process and stiffness index.
+    """Calculate weights for a given observation vector.
 
-    :param p: A prone-to-supine process from a bpm pipeline.
     :param pca: A class containing principal components, explained variance etc.
-    :param s_idx: An index for a stiffness solved on a prone-to-supine bpm pipeline.
-    :return: A one-dimensional array of component weights in number of standard deviations.
+    :param input_nds: An index for a stiffness solved on a prone-to-supine bpm pipeline.
     """
-
-    # pth = os.path.join(p.workspace('mechanics').path(), 'reference_parameter_set_{0}.mesh'.format(s_idx))
-    # ref_nds = morphic.Mesh(pth).get_nodes()
-
-    # Using input nodes as reference nodes.
-    ref_nds = input_nds
-
     # Calculating weights in number of standard deviations from given PCA input.
-    wts = np.dot(np.reshape(ref_nds, [1, -1], order='F') - pca.mean_, pca.components_.T) / pca.explained_variance_
+    wts = np.dot(input_nds - pca.mean_, pca.components_.T) / pca.explained_variance_
     return wts
 
 
@@ -63,7 +54,7 @@ def reconstruct_nodes(pca, pc_idx, wts):
     """
 
     wts = wts*-1
-    nds = np.dot(wts[..., 0:pc_idx], pca.components_[0:pc_idx, :]) + pca.mean_
+    nds = np.dot(wts[0:pc_idx], pca.components_[0:pc_idx, :]) + pca.mean_
     nds = np.reshape(nds, [pca.n_features_ // 3, 3], order='F')
 
     return nds
@@ -124,12 +115,12 @@ def plot_variance_explained(pca, num_components):
 
 
 def num_components(pca, var_percentage):
-   """Generates the number of components to keep, based on the amount of variance explained by each component.
+    """Generates the number of components to keep, based on the amount of variance explained by each component.
 
-   :param pca: A class containing principal components, explained variance etc.
-   :param var_percentage: Amount of variance contributed by each principal component.
-   :return: Number of components to keep.
-   """
+    :param pca: A class containing principal components, explained variance etc.
+    :param var_percentage: Amount of variance contributed by each principal component.
+    :return: Number of components to keep.
+    """
 
     # Calculating variance contribution by principal components.
     variance = pca.explained_variance_ratio_ * 100
