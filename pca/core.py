@@ -44,6 +44,9 @@ def calculate_weights(pca, input_nds):
     return wts
 
 
+def data_vec_to_array(nds):
+    return np.reshape(nds, [len(nds) // 3, 3], order='F')
+
 def reconstruct_nodes(pca, pc_idx, wts):
     """Reconstruct three-dimensional node positions from PCs and weights.
 
